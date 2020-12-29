@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.shelter.review">
 
+  <permission android:name="com.example.shelter.read_permission" android:protectionLevel="normal"/>
+  <permission android:name="com.example.shelter.write_permission" android:protectionLevel="normal"/>
+
+
   <application
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
@@ -17,6 +21,16 @@
       </intent-filter>
     </activity>
     <activity android:name=".SecondActivity" />
+
+    <provider
+        android:exported="true"
+        android:readPermission="com.example.shelter.read_permission"
+        android:writePermission="com.example.shelter.write_permission"
+        android:authorities="com.example.shelter"
+        android:name=".provider.MyProvider"/>
+
+    <service android:name=".MainService"
+        android:process=":remote"/>
   </application>
 
 </manifest>
