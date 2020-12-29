@@ -1,61 +1,60 @@
 package com.shelter.review;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity implements Handler.Callback{
-    private Handler handler;
+import com.shelter.review.fragment.MyFragment1;
+import com.shelter.review.fragment.MyFragment2;
 
-    private ContentObserver contentObserver;
+public class MainActivity extends AppCompatActivity implements Handler.Callback, View.OnClickListener {
+    private FragmentManager fragmentManager;
+    private MyFragment1 myFragment1 = new MyFragment1();
+    private MyFragment2 myFragment2 = new MyFragment2();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        handler = new Handler(this);
-        contentObserver = new ContentObserver(handler) {
-            @Override
-            public void onChange(boolean selfChange) {
-                super.onChange(selfChange);
-                Log.i("Shelter", "MainActivity onChange() 1");
-            }
-
-            @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                super.onChange(selfChange, uri);
-                Log.i("Shelter", "MainActivity onChange() 2");
-            }
-        };
         Log.i("Shelter", "MainActivity onCreate()");
-        ContentResolver contentResolver = getContentResolver();
-        Uri uri = Uri.parse("content://com.example.shelter/user");
-        contentResolver.registerContentObserver(uri, false, contentObserver);
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("_id", "3");
-        contentValues.put("name", "Kobe Bryant");
-        contentResolver.insert(uri, contentValues);
+        setContentView(R.layout.activity_main);
+        fragmentManager = getSupportFragmentManager();
 
-        Cursor cursor = contentResolver.query(uri, null, null, null, null);
-        while (cursor.moveToNext()) {
-            Log.i("Shelter", "_id = " + cursor.getInt(0) + ", name = " + cursor.getString(1));
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.fragment_container, myFragment1).commit();
+
+        findViewById(R.id.btn1).setOnClickListener(this);
+        findViewById(R.id.btn2).setOnClickListener(this);
+    }
+
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        switch (v.getId()) {
+            case R.id.btn1:
+                transaction.replace(R.id.fragment_container, myFragment1).commit();
+                break;
+            case R.id.btn2:
+                transaction.replace(R.id.fragment_container, myFragment2);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                break;
+            default:
+                break;
         }
-        cursor.close();
-
-        startService(new Intent(this, MainService.class));
     }
 
     @Override
@@ -117,4 +116,5 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback{
         Log.i("Shelter", "MainActivity handleMessage()");
         return true;
     }
+
 }
