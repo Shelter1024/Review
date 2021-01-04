@@ -33,6 +33,18 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
 
         findViewById(R.id.btn1).setOnClickListener(this);
         findViewById(R.id.btn2).setOnClickListener(this);
+
+        //test IntentService
+        Intent intent1 = new Intent(this, MyIntentService.class);
+        intent1.setAction("intent 1");
+        startService(intent1);
+
+        Intent intent2 = new Intent(this, MyIntentService.class);
+        intent2.setAction("intent 2");
+        startService(intent2);
+
+        intent1.setAction("intent 3");
+        startService(intent1);
     }
 
     /**

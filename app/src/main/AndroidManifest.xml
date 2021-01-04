@@ -31,6 +31,7 @@
 
     <service android:name=".MainService"
         android:process=":remote"/>
+    <service android:name=".MyIntentService" />
   </application>
 
 </manifest>
