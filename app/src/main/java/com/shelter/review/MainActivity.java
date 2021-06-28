@@ -15,6 +15,7 @@ import android.os.Bundle;
 
 import com.shelter.review.fragment.MyFragment1;
 import com.shelter.review.fragment.MyFragment2;
+import com.shelter.review.mvp.ui.LoginActivity;
 
 public class MainActivity extends AppCompatActivity implements Handler.Callback, View.OnClickListener {
     private FragmentManager fragmentManager;
@@ -57,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         switch (v.getId()) {
             case R.id.btn1:
-                transaction.replace(R.id.fragment_container, myFragment1).commit();
+//                transaction.replace(R.id.fragment_container, myFragment1).commit();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
                 break;
             case R.id.btn2:
                 transaction.replace(R.id.fragment_container, myFragment2);
