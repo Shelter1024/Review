@@ -2,14 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.shelter.review">.
 
-    <permission
-        android:name="com.example.shelter.write_permission"
-        android:protectionLevel="normal" />
-
-    <permission
-        android:name="com.example.shelter.read_permission"
-        android:protectionLevel="normal" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -38,6 +30,22 @@
             android:name=".MainService"
             android:process=":remote" />
         <service android:name=".MyIntentService" />
+        <service
+            android:name=".RemoteService"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="com.shelter.review.remote_service" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
     </application>
+
+    <permission
+        android:name="com.example.shelter.read_permission"
+        android:protectionLevel="normal" />
+
+    <permission
+        android:name="com.example.shelter.write_permission"
+        android:protectionLevel="normal" />
 
 </manifest>

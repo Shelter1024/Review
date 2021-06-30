@@ -1,51 +1,71 @@
 package com.shelter.review;
 
+import android.content.ComponentName;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 
-import com.shelter.review.fragment.MyFragment1;
-import com.shelter.review.fragment.MyFragment2;
-import com.shelter.review.mvp.ui.LoginActivity;
 
-public class MainActivity extends AppCompatActivity implements Handler.Callback, View.OnClickListener {
-    private FragmentManager fragmentManager;
-    private MyFragment1 myFragment1 = new MyFragment1();
-    private MyFragment2 myFragment2 = new MyFragment2();
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private IBookManager bookManager;
+    private OnBookArrivedListener onBookArrivedListener = new OnBookArrivedListener.Stub() {
+
+        @Override
+        public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
+
+        }
+
+        @Override
+        public void onBookArrived(Book book) throws RemoteException {
+            Log.d("Shelter", "MainActivity onBookArrived() bookId = " + book.getBookId() + ", bookName = " + book.getBookName());
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("Shelter", "MainActivity onCreate()");
         setContentView(R.layout.activity_main);
-        fragmentManager = getSupportFragmentManager();
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragment_container, myFragment1).commit();
-
         findViewById(R.id.btn1).setOnClickListener(this);
         findViewById(R.id.btn2).setOnClickListener(this);
+        startService();
+    }
 
-        //test IntentService
-        Intent intent1 = new Intent(this, MyIntentService.class);
-        intent1.setAction("intent 1");
-        startService(intent1);
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d("Shelter", "MainActivity onServiceConnected() service = " +service);
+            bookManager = IBookManager.Stub.asInterface(service);
+            try {
+                Log.d("Shelter", "MainActivity onServiceConnected() onBookArrivedListener = " + onBookArrivedListener);
+                bookManager.registerOnBookArrivedListener(onBookArrivedListener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
 
-        Intent intent2 = new Intent(this, MyIntentService.class);
-        intent2.setAction("intent 2");
-        startService(intent2);
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d("Shelter", "MainActivity onServiceDisconnected()");
+            try {
+                bookManager.unregisterOnBookArrivedListener(onBookArrivedListener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
-        intent1.setAction("intent 3");
-        startService(intent1);
+    private void startService() {
+        Intent intent = new Intent(this, RemoteService.class);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     /**
@@ -55,17 +75,23 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
      */
     @Override
     public void onClick(View v) {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
         switch (v.getId()) {
             case R.id.btn1:
-//                transaction.replace(R.id.fragment_container, myFragment1).commit();
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
+                try {
+                    bookManager.addBook(new Book(1, "Android开发艺术探索"));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn2:
-                transaction.replace(R.id.fragment_container, myFragment2);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                try {
+                    List<Book> bookList = bookManager.getBookList();
+                    for (Book book : bookList) {
+                        Log.d("Shelter", "MainActivity getBookList bookId = " + book.getBookId() + ", bookName = " + book.getBookName());
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 break;
@@ -73,63 +99,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i("Shelter", "MainActivity onRestart()");
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i("Shelter", "MainActivity onStart()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i("Shelter", "MainActivity onResume()");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i("Shelter", "MainActivity onPause()");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i("Shelter", "MainActivity onStop()");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i("Shelter", "MainActivity onDestroy()");
-    }
-
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.i("Shelter", "MainActivity onSaveInstanceState()");
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.i("Shelter", "MainActivity onRestoreInstanceState()");
-    }
-
-    public void startSecondActivity(View view) {
-        Intent intent = new Intent(this, SecondActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public boolean handleMessage(@NonNull Message msg) {
-        Log.i("Shelter", "MainActivity handleMessage()");
-        return true;
-    }
-
 }
