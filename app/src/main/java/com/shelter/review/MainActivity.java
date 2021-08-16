@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn1).setOnClickListener(this);
         findViewById(R.id.btn2).setOnClickListener(this);
-        startService();
+//        startService();
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -77,11 +77,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn1:
-                try {
-                    bookManager.addBook(new Book(1, "Android开发艺术探索"));
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                ComponentName cn = new ComponentName("com.palmtop.app2", "com.palmtop.app2.MainActivity");
+                intent.setComponent(cn);
+                startActivity(intent);
+
+//                try {
+//                    bookManager.addBook(new Book(1, "Android开发艺术探索"));
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
                 break;
             case R.id.btn2:
                 try {
