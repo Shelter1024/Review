@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,6 +38,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn1).setOnClickListener(this);
         findViewById(R.id.btn2).setOnClickListener(this);
 //        startService();
+        List<? extends User> list = new ArrayList<VipUser>();
+        List<Number> integers = new ArrayList<>();
+        integers.add(1);
+        List<Number> numbers = map3(integers, new Mapper<Number, Integer>() {
+            @Override
+            public Integer map(Number integer) {
+                return null;
+            }
+        });
+    }
+
+    private static <T,R> List<R> map3(List<T> list, Mapper<? super T,? extends R> mapper) {
+        List<R> l = new ArrayList<R>();
+        for (T t : list) {
+            R r = mapper.map(t);
+            l.add(r);
+        }
+        return l;
+    }
+
+
+    private static interface Mapper<T,R> {
+        R map(T t);
+    }
+
+    private void copyAll(List<? super VipUser> dest) {
+        dest.add(new SuperVipUser());
+        dest.add(new VipUser());
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
