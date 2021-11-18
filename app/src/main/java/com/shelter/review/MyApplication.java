@@ -53,6 +53,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        registerActivityLifecycleCallbacks(lifecycleCallbacks);
+//        registerActivityLifecycleCallbacks(lifecycleCallbacks);
     }
 }

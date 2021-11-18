@@ -13,7 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.shelter.review.data.Response;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -47,6 +53,75 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return null;
             }
         });
+
+        Gson gson = new Gson();
+        Data data = new Data("1", new Date().toString());
+        Response<Data> response = new Response<>(data);
+        String json = gson.toJson(response);
+        Log.d("Shelter", "MainActivity json = " + json);
+
+        Response<Data> dataResponse = gson.fromJson(json, Response.class);
+        /**
+         * getClass会导致ClassCastException
+         * Caused by: java.lang.ClassCastException: com.google.gson.internal.LinkedTreeMap cannot be cast to com.shelter.review.MainActivity$Data
+         * LINENUMBER 68 L14
+         *     LDC "Shelter"
+         *     NEW java/lang/StringBuilder
+         *     DUP
+         *     INVOKESPECIAL java/lang/StringBuilder.<init> ()V
+         *     LDC "MainActivity dataResponse = "
+         *     INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+         *     ALOAD 9
+         *     INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/Object;)Ljava/lang/StringBuilder;
+         *     LDC ", data class = "
+         *     INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+         *     ALOAD 9
+         *     INVOKEVIRTUAL com/shelter/review/data/Response.getData ()Ljava/lang/Object;
+         *     CHECKCAST com/shelter/review/MainActivity$Data
+         *     INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;
+         *     INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/Object;)Ljava/lang/StringBuilder;
+         *     INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
+         *     INVOKESTATIC android/util/Log.d (Ljava/lang/String;Ljava/lang/String;)I
+         */
+//        Log.d("Shelter", "MainActivity dataResponse = " + dataResponse + ", data class = " + dataResponse.getData().getClass());
+        Type testType = new TypeReference<Response<Data>>(){}.getType();
+        Log.d("Shelter", "MainActivity testType = " + testType);
+        Type type = new TypeToken<Response<Data>>() {
+        }.getType();
+        Log.d("Shelter", "MainActivity type = " + type);
+        Response<Data> dataResponse2 = gson.fromJson(json, type);
+        Log.d("Shelter", "MainActivity dataResponse2 = " + dataResponse2);
+
+    }
+
+    static class TypeReference<T> {
+
+        public TypeReference() {
+
+        }
+
+        public Type getType() {
+            return getClass().getGenericSuperclass();
+        }
+    }
+
+
+    static class Data {
+        String id;
+        String time;
+
+        public Data(String id, String time) {
+            this.id = id;
+            this.time = time;
+        }
+
+        @Override
+        public String toString() {
+            return "Data{" +
+                    "id='" + id + '\'' +
+                    ", time='" + time + '\'' +
+                    '}';
+        }
     }
 
     private static <T,R> List<R> map3(List<T> list, Mapper<? super T,? extends R> mapper) {
@@ -119,14 +194,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                }
                 break;
             case R.id.btn2:
-                try {
-                    List<Book> bookList = bookManager.getBookList();
-                    for (Book book : bookList) {
-                        Log.d("Shelter", "MainActivity getBookList bookId = " + book.getBookId() + ", bookName = " + book.getBookName());
-                    }
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    List<Book> bookList = bookManager.getBookList();
+//                    for (Book book : bookList) {
+//                        Log.d("Shelter", "MainActivity getBookList bookId = " + book.getBookId() + ", bookName = " + book.getBookName());
+//                    }
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
+                Intent intent2 = new Intent(this, SecondActivity.class);
+                startActivity(intent2);
                 break;
             default:
                 break;
