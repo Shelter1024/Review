@@ -14,13 +14,21 @@ import android.os.Bundle;
 
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.shelter.review.data.Response;
+import com.shelter.review.retrofit.MyRetrofit;
+import com.shelter.review.retrofit.WeatherService;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private IBookManager bookManager;
@@ -43,7 +51,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn1).setOnClickListener(this);
         findViewById(R.id.btn2).setOnClickListener(this);
+        findViewById(R.id.btn3).setOnClickListener(this);
+        findViewById(R.id.btn4).setOnClickListener(this);
 //        startService();
+
+//        testGeneric();
+
+    }
+
+    private void testGeneric() {
         List<? extends User> list = new ArrayList<VipUser>();
         List<Number> integers = new ArrayList<>();
         integers.add(1);
@@ -60,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String json = gson.toJson(response);
         Log.d("Shelter", "MainActivity json = " + json);
 
-        Response<Data> dataResponse = gson.fromJson(json, Response.class);
+        Response<LinkedTreeMap> dataResponse = gson.fromJson(json, Response.class);
         /**
          * getClass会导致ClassCastException
          * Caused by: java.lang.ClassCastException: com.google.gson.internal.LinkedTreeMap cannot be cast to com.shelter.review.MainActivity$Data
@@ -83,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          *     INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
          *     INVOKESTATIC android/util/Log.d (Ljava/lang/String;Ljava/lang/String;)I
          */
-//        Log.d("Shelter", "MainActivity dataResponse = " + dataResponse + ", data class = " + dataResponse.getData().getClass());
+        Log.d("Shelter", "MainActivity dataResponse = " + dataResponse + ", data class = " + dataResponse.getData().getClass());
         Type testType = new TypeReference<Response<Data>>(){}.getType();
         Log.d("Shelter", "MainActivity testType = " + testType);
         Type type = new TypeToken<Response<Data>>() {
@@ -91,7 +107,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("Shelter", "MainActivity type = " + type);
         Response<Data> dataResponse2 = gson.fromJson(json, type);
         Log.d("Shelter", "MainActivity dataResponse2 = " + dataResponse2);
+    }
 
+    private void testGet() {
+        MyRetrofit myRetrofit = new MyRetrofit.Builder().baseUrl("https://restapi.amap.com").build();
+        WeatherService weatherService = myRetrofit.create(WeatherService.class);
+        Call call = weatherService.getWeather("110101", "ae6c53e2186f33bbf240a12d80672d1b");
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("Shelter", "MainActivity onFailure() error = " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                Log.d("Shelter", "MainActivity onResponse() body = " + response.body().string());
+            }
+        });
+    }
+
+    private void testPost() {
+        MyRetrofit myRetrofit = new MyRetrofit.Builder().baseUrl("https://restapi.amap.com").build();
+        WeatherService weatherService = myRetrofit.create(WeatherService.class);
+        Call call = weatherService.postWeather("110101", "ae6c53e2186f33bbf240a12d80672d1b");
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("Shelter", "MainActivity onFailure() error = " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                Log.d("Shelter", "MainActivity onResponse() body = " + response.body().string());
+            }
+        });
     }
 
     static class TypeReference<T> {
@@ -181,32 +230,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn1:
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                ComponentName cn = new ComponentName("com.palmtop.app2", "com.palmtop.app2.MainActivity");
-                intent.setComponent(cn);
-                startActivity(intent);
+//                startApp2Activity();
 
-//                try {
-//                    bookManager.addBook(new Book(1, "Android开发艺术探索"));
-//                } catch (RemoteException e) {
-//                    e.printStackTrace();
-//                }
+//                addBook();
                 break;
             case R.id.btn2:
-//                try {
-//                    List<Book> bookList = bookManager.getBookList();
-//                    for (Book book : bookList) {
-//                        Log.d("Shelter", "MainActivity getBookList bookId = " + book.getBookId() + ", bookName = " + book.getBookName());
-//                    }
-//                } catch (RemoteException e) {
-//                    e.printStackTrace();
-//                }
-                Intent intent2 = new Intent(this, SecondActivity.class);
-                startActivity(intent2);
+                getBookList();
+                break;
+
+            case R.id.btn3:
+                testGet();
+                break;
+            case R.id.btn4:
+                testPost();
                 break;
             default:
                 break;
+        }
+    }
+
+    private void getBookList() {
+        try {
+            List<Book> bookList = bookManager.getBookList();
+            for (Book book : bookList) {
+                Log.d("Shelter", "MainActivity getBookList bookId = " + book.getBookId() + ", bookName = " + book.getBookName());
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startApp2Activity() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        ComponentName cn = new ComponentName("com.palmtop.app2", "com.palmtop.app2.MainActivity");
+        intent.setComponent(cn);
+        startActivity(intent);
+    }
+
+    private void addBook() {
+        try {
+            bookManager.addBook(new Book(1, "Android开发艺术探索"));
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 
