@@ -8,6 +8,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -20,12 +21,31 @@ import com.shelter.review.data.Response;
 import com.shelter.review.retrofit.MyRetrofit;
 import com.shelter.review.retrofit.WeatherService;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Callback;
 
@@ -56,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        startService();
 
 //        testGeneric();
-
     }
 
     private void testGeneric() {
@@ -100,7 +119,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          *     INVOKESTATIC android/util/Log.d (Ljava/lang/String;Ljava/lang/String;)I
          */
         Log.d("Shelter", "MainActivity dataResponse = " + dataResponse + ", data class = " + dataResponse.getData().getClass());
-        Type testType = new TypeReference<Response<Data>>(){}.getType();
+        Type testType = new TypeReference<Response<Data>>() {
+        }.getType();
         Log.d("Shelter", "MainActivity testType = " + testType);
         Type type = new TypeToken<Response<Data>>() {
         }.getType();
@@ -173,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private static <T,R> List<R> map3(List<T> list, Mapper<? super T,? extends R> mapper) {
+    private static <T, R> List<R> map3(List<T> list, Mapper<? super T, ? extends R> mapper) {
         List<R> l = new ArrayList<R>();
         for (T t : list) {
             R r = mapper.map(t);
@@ -183,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private static interface Mapper<T,R> {
+    private static interface Mapper<T, R> {
         R map(T t);
     }
 
@@ -195,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d("Shelter", "MainActivity onServiceConnected() service = " +service);
+            Log.d("Shelter", "MainActivity onServiceConnected() service = " + service);
             bookManager = IBookManager.Stub.asInterface(service);
             try {
                 Log.d("Shelter", "MainActivity onServiceConnected() onBookArrivedListener = " + onBookArrivedListener);
@@ -240,13 +260,105 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.btn3:
                 testGet();
+                subscription.request(10);
                 break;
             case R.id.btn4:
-                testPost();
+//                testPost();
+                testRxJava();
                 break;
             default:
                 break;
         }
+    }
+
+    private Subscription subscription;
+
+    private final ObservableTransformer<String, String> observableTransformer = new ObservableTransformer<String, String>() {
+        @NonNull
+        @Override
+        public ObservableSource<String> apply(@NonNull Observable<String> upstream) {
+            return upstream.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread());
+        }
+    };
+
+    private void testRxJava() {
+        Flowable.create(new FlowableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull FlowableEmitter<String> emitter) throws Exception {
+                for (int i = 0; i < 500; i++) {
+                    Log.d("Shelter", "MainActivity subscribe() 发射 " + i);
+                    emitter.onNext(String.valueOf(i));
+                }
+            }
+        }, BackpressureStrategy.BUFFER)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onSubscribe(Subscription s) {
+                        subscription = s;
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Log.d("Shelter", "MainActivity onNext() 接收 s = " + s);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+//        Observable.create(new ObservableOnSubscribe<String>() {
+//            @Override
+//            public void subscribe(@NonNull ObservableEmitter<String> emitter) throws Exception {
+//                emitter.onNext("Hello");
+//                emitter.onNext("World");
+//                emitter.onNext("GoodBye");
+//                emitter.onComplete();
+//            }
+//        })
+//                .map(new Function<String, String>() {
+//                    @Override
+//                    public String apply(@NonNull String s) throws Exception {
+//                        return null;
+//                    }
+//                })
+//                .flatMap(new Function<String, ObservableSource<String>>() {
+//                    @Override
+//                    public ObservableSource<String> apply(@NonNull String s) throws Exception {
+//                        return null;
+//                    }
+//                })
+//                .compose(observableTransformer)
+//                .subscribe(new Observer<String>() {
+//                    @Override
+//                    public void onSubscribe(@NonNull Disposable d) {
+//                        Log.d("Shelter", "MainActivity onSubscribe()");
+//                    }
+//
+//                    @Override
+//                    public void onNext(@NonNull String s) {
+//                        Log.d("Shelter", "MainActivity onNext() s = " + s);
+//                    }
+//
+//                    @Override
+//                    public void onError(@NonNull Throwable e) {
+//                        Log.d("Shelter", "MainActivity onError() error = " + e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        Log.d("Shelter", "MainActivity onComplete()");
+//                    }
+//                });
     }
 
     private void getBookList() {
@@ -280,5 +392,73 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+
+    static int count = 0;
+    static final Object lock = new Object();
+    //面试题：三个线程交替执行
+    private static void testThreadAlternantExe2() {
+
+        Thread thread1 = new Thread(){
+            @Override
+            public void run() {
+                while (count <= 100) {
+                    synchronized (lock) {
+                        if (count % 3 == 0) {
+                            System.out.println("thread: " + Thread.currentThread().getName() + ", count = " + count);
+                            count++;
+                        }
+                        try {
+                            lock.notifyAll();
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        };
+        Thread thread2 = new Thread(){
+            @Override
+            public void run() {
+                while (count <= 100) {
+                    synchronized (lock) {
+                        if (count % 3 == 1) {
+                            System.out.println("thread: " + Thread.currentThread().getName() + ", count = " + count);
+                            count++;
+                        }
+                        try {
+                            lock.notifyAll();
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        };
+        Thread thread3 = new Thread(){
+            @Override
+            public void run() {
+                while (count <= 100) {
+                    synchronized (lock) {
+                        if (count % 3 == 2) {
+                            System.out.println("thread: " + Thread.currentThread().getName() + ", count = " + count);
+                            count++;
+                        }
+                        try {
+                            lock.notifyAll();
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        };
+        thread1.start();
+        thread2.start();
+        thread3.start();
     }
 }
