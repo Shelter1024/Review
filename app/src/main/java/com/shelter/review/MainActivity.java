@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 
 import com.google.gson.Gson;
@@ -76,7 +77,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        startService();
 
 //        testGeneric();
+        WssCloseView iv = findViewById(R.id.iv);
+        iv.setReduceArea(30);
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "点击了按钮", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     private void testGeneric() {
         List<? extends User> list = new ArrayList<VipUser>();
@@ -253,9 +263,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                startApp2Activity();
 
 //                addBook();
+                Toast.makeText(MainActivity.this, "点击了按钮1", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn2:
-                getBookList();
+//                getBookList();
+                Toast.makeText(MainActivity.this, "点击了按钮2", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.btn3:
