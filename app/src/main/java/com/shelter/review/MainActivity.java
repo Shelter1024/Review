@@ -26,6 +26,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import okhttp3.Call;
 import okhttp3.Callback;
 
@@ -56,7 +63,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        startService();
 
 //        testGeneric();
+        
+        testRxJava();
 
+        System.gc();
+        Person.Companion.sleep();
+        Person.sleep();
+
+    }
+
+    private void testRxJava() {
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onNext("发射事件");
+            }
+        }).map(new Function<String, Object>() {
+            @NonNull
+            @Override
+            public Object apply(@NonNull String s) throws Exception {
+                return new Object();
+            }
+        }).subscribe(new Observer<Object>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Object s) {
+
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void testGeneric() {
