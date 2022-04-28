@@ -1,0 +1,168 @@
+package com.palmtop.app2.view;
+
+import android.content.Context;
+import android.os.Build;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.RecyclerView;
+
+
+import com.palmtop.app2.FlingHelper;
+
+import java.util.Arrays;
+
+public class NestedScrollLayout extends NestedScrollView {
+    private View topView;
+    private ViewGroup contentView;
+    private static final String TAG = "NestedScrollLayout";
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public NestedScrollLayout(Context context) {
+        this(context, null);
+        init();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public NestedScrollLayout(Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
+        init();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public NestedScrollLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        this(context, attrs, defStyleAttr, 0);
+        init();
+    }
+
+    public NestedScrollLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private FlingHelper mFlingHelper;
+
+    int totalDy = 0;
+    /**
+     * 用于判断RecyclerView是否在fling
+     */
+    boolean isStartFling = false;
+    /**
+     * 记录当前滑动的y轴加速度
+     */
+    private int velocityY = 0;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void init() {
+        mFlingHelper = new FlingHelper(getContext());
+        setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                Log.d("NestedScrollLayout", "onScrollChange() v = " + v.getClass().getSimpleName() + ", scrollX " + scrollX + ", scrollY = " + scrollY + ", oldScrollX = " + oldScrollX + ", oldScrollY = " + oldScrollY);
+                if (isStartFling) {
+                    totalDy = 0;
+                    isStartFling = false;
+                }
+                if (scrollY == 0) {
+                    Log.i(TAG, "TOP SCROLL");
+                   // refreshLayout.setEnabled(true);
+                }
+
+                int measuredHeight = getChildAt(0).getMeasuredHeight();
+                int measuredHeight1 = v.getMeasuredHeight();
+                if (scrollY == (measuredHeight - measuredHeight1)) {
+                    Log.d("NestedScrollLayout", "NestedScrollLayout measuredHeight = " + measuredHeight + ", measuredHeight1 = " + measuredHeight1);
+                    Log.i(TAG, "BOTTOM SCROLL");
+                    dispatchChildFling();
+                }
+                //在RecyclerView fling情况下，记录当前RecyclerView在y轴的偏移
+                totalDy += scrollY - oldScrollY;
+                Log.d("NestedScrollLayout", "NestedScrollLayout totalDy = " + totalDy);
+            }
+        });
+    }
+
+    private void dispatchChildFling() {
+        Log.d("NestedScrollLayout", "dispatchChildFling() velocityY = " + velocityY);
+        if (velocityY != 0) {
+            Double splineFlingDistance = mFlingHelper.getSplineFlingDistance(velocityY);
+            Log.d("NestedScrollLayout", "dispatchChildFling() splineFlingDistance = " + splineFlingDistance + ", totalDy = " + totalDy);
+            if (splineFlingDistance > totalDy) {
+                childFling(mFlingHelper.getVelocityByDistance(splineFlingDistance - Double.valueOf(totalDy)));
+            }
+        }
+        totalDy = 0;
+        velocityY = 0;
+    }
+
+    private void childFling(int velY) {
+        RecyclerView childRecyclerView = getChildRecyclerView(contentView);
+        Log.d("NestedScrollLayout", "NestedScrollLayout childFling() velY = " + velY + ", childRecyclerView = " + childRecyclerView);
+        if (childRecyclerView != null) {
+            childRecyclerView.fling(0, velY);
+        }
+    }
+
+    @Override
+    public void fling(int velocityY) {
+        Log.d("Shelter", "NestedScrollLayout fling()");
+        super.fling(velocityY);
+        if (velocityY <= 0) {
+            this.velocityY = 0;
+        } else {
+            isStartFling = true;
+            this.velocityY = velocityY;
+        }
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        Log.d("NestedScrollLayout", "NestedScrollLayout onFinishInflate()");
+        topView = ((ViewGroup) getChildAt(0)).getChildAt(0);
+        contentView = (ViewGroup) ((ViewGroup) getChildAt(0)).getChildAt(1);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // 调整contentView的高度为父容器高度，使之填充布局，避免父容器滚动后出现空白
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        ViewGroup.LayoutParams lp = contentView.getLayoutParams();
+        lp.height = getMeasuredHeight();
+        Log.d("NestedScrollLayout", "NestedScrollLayout onMeasure() lp.height = " + lp.height);
+        contentView.setLayoutParams(lp);
+    }
+
+    @Override
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
+        Log.i("NestedScrollLayout", getScrollY()+"::onNestedPreScroll::"+topView.getMeasuredHeight() + ", dx = " + dx + ", dy = " + dy + ", consumed = " + Arrays.toString(consumed));
+        // 向上滑动。若当前topview可见，需要将topview滑动至不可见
+        boolean hideTop = dy > 0 && getScrollY() < topView.getMeasuredHeight();
+        if (hideTop) {
+            scrollBy(0, dy);
+            consumed[1] = dy;
+        }
+    }
+
+    private RecyclerView getChildRecyclerView(ViewGroup viewGroup) {
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            View view = viewGroup.getChildAt(i);
+            if (view instanceof RecyclerView) {
+                return (RecyclerView) viewGroup.getChildAt(i);
+            } else if (viewGroup.getChildAt(i) instanceof ViewGroup) {
+                ViewGroup childRecyclerView = getChildRecyclerView((ViewGroup) viewGroup.getChildAt(i));
+                if (childRecyclerView instanceof RecyclerView) {
+                    return (RecyclerView) childRecyclerView;
+                }
+            }
+            continue;
+        }
+        return null;
+    }
+}
