@@ -7,12 +7,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.multidex.MultiDexApplication;
+
+import com.shelter.skinlib.SkinManager;
 
 /**
  * @author: Shelter
  * Create time: 2021/8/11, 10:01.
  */
-public class MyApplication extends Application {
+public class MyApplication extends MultiDexApplication {
     ActivityLifecycleCallbacks lifecycleCallbacks = new ActivityLifecycleCallbacks() {
         @Override
         public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
@@ -53,6 +56,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        SkinManager.getInstance().init(this);
 //        registerActivityLifecycleCallbacks(lifecycleCallbacks);
     }
 }

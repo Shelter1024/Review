@@ -4,6 +4,13 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <permission
+        android:name="com.example.shelter.read_permission"
+        android:protectionLevel="normal" />
+    <permission
+        android:name="com.example.shelter.write_permission"
+        android:protectionLevel="normal" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -12,12 +19,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".SkinActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
         <activity android:name=".SecondActivity" />
         <activity android:name=".mvp.ui.LoginActivity" />
@@ -38,17 +53,10 @@
             android:process=":remote">
             <intent-filter>
                 <action android:name="com.shelter.review.remote_service" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
     </application>
-
-    <permission
-        android:name="com.example.shelter.read_permission"
-        android:protectionLevel="normal" />
-
-    <permission
-        android:name="com.example.shelter.write_permission"
-        android:protectionLevel="normal" />
 
 </manifest>
