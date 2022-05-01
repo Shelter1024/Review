@@ -15,6 +15,12 @@ class CustomTextViewActivity : AppCompatActivity() {
 
     private fun initView() {
         //setPercent
+        Log.d("Shelter", "CustomTextViewActivity initView: progressView:$progressView")
+        val progressAnimator = ObjectAnimator.ofInt(progressView, "progress", 1, 100)
+        progressAnimator.setDuration(5000)
+            .start()
+
+        //setPercent
         Log.d("Shelter", "CustomTextViewActivity initView: customTextView:$customTextView")
         val animator = ObjectAnimator.ofFloat(customTextView, "percent", 0F, 1F)
         animator.addUpdateListener {
