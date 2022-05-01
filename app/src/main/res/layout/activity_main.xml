@@ -58,6 +58,9 @@
         android:layout_height="90dp"/>
 
 
-
+    <com.shelter.review.view.CustomTextView
+        android:id="@+id/customTv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

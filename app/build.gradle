@@ -50,6 +50,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko:0.10.8"
     implementation project(':skinlib')
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation project(':commonlib')
 }
 repositories {
     mavenCentral()
