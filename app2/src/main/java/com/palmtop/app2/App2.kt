@@ -51,6 +51,6 @@ class App2 : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        registerActivityLifecycleCallbacks(lifecycleCallbacks)
+//        registerActivityLifecycleCallbacks(lifecycleCallbacks)
     }
 }
