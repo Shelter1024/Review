@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.palmtop.app2.view.NestedScrollingParentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:nestedScrollingEnabled="true"
+    android:orientation="vertical"
+    tools:context=".TestNestedScrollActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivTop"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/banner" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="#00b9ff"
+        android:gravity="center_vertical"
+        android:text="亲爱的，我是标题哦。。。"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+
+    <com.palmtop.app2.view.NestedScrollingChildLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/darker_gray"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/scrollTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="18sp" />
+    </com.palmtop.app2.view.NestedScrollingChildLayout>
+
+</com.palmtop.app2.view.NestedScrollingParentLayout>
