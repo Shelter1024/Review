@@ -3,17 +3,15 @@ package com.shelter.review;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-import android.widget.Toast;
-
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -40,8 +38,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -295,15 +292,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void testRxJava() {
+        Single.just("Shelter").map(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) throws Exception {
+                        return "Shelter1024";
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+        Disposable disposable = Observable.create(new ObservableOnSubscribe<String>() {
+                    @Override
+                    public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+
+                    }
+                });
         Flowable.create(new FlowableOnSubscribe<String>() {
-            @Override
-            public void subscribe(@NonNull FlowableEmitter<String> emitter) throws Exception {
-                for (int i = 0; i < 500; i++) {
-                    Log.d("Shelter", "MainActivity subscribe() 发射 " + i);
-                    emitter.onNext(String.valueOf(i));
-                }
-            }
-        }, BackpressureStrategy.BUFFER)
+                    @Override
+                    public void subscribe(@NonNull FlowableEmitter<String> emitter) throws Exception {
+                        for (int i = 0; i < 500; i++) {
+                            Log.d("Shelter", "MainActivity subscribe() 发射 " + i);
+                            emitter.onNext(String.valueOf(i));
+                        }
+                    }
+                }, BackpressureStrategy.BUFFER)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<String>() {
@@ -409,10 +429,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     static int count = 0;
     static final Object lock = new Object();
+
     //面试题：三个线程交替执行
     private static void testThreadAlternantExe2() {
 
-        Thread thread1 = new Thread(){
+        Thread thread1 = new Thread() {
             @Override
             public void run() {
                 while (count <= 100) {
@@ -431,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         };
-        Thread thread2 = new Thread(){
+        Thread thread2 = new Thread() {
             @Override
             public void run() {
                 while (count <= 100) {
@@ -450,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         };
-        Thread thread3 = new Thread(){
+        Thread thread3 = new Thread() {
             @Override
             public void run() {
                 while (count <= 100) {
