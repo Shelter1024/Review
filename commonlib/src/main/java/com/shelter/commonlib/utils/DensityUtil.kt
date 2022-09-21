@@ -13,7 +13,18 @@ object DensityUtil {
         return (dp * scale + 0.5F).toInt()
     }
 
+    fun dp2px(context: Context, dp: Float) : Int {
+        val scale = context.resources.displayMetrics.density
+        return (dp * scale + 0.5F).toInt()
+    }
+
+
     fun dp2px(dp: Int) : Int {
+        val scale = Resources.getSystem().displayMetrics.density
+        return (dp * scale + 0.5F).toInt()
+    }
+
+    fun dp2px(dp: Float) : Int {
         val scale = Resources.getSystem().displayMetrics.density
         return (dp * scale + 0.5F).toInt()
     }
@@ -22,5 +33,13 @@ object DensityUtil {
     fun px2dp(context: Context, px: Int): Int {
         val scale = context.resources.displayMetrics.density
         return (px / scale + 0.5F).toInt()
+    }
+
+    fun getScreenWidth(context: Context): Int {
+        return context.resources.displayMetrics.widthPixels
+    }
+
+    fun getScreenHeight(context: Context): Int {
+        return context.resources.displayMetrics.heightPixels
     }
 }
