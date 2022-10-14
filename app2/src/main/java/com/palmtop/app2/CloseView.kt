@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
@@ -34,6 +35,8 @@ class CloseView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas?) {
+        //view设置invisible或者gone后，不绘制
+        Log.d("Shelter", "CloseView onDraw")
         if (canvas == null) {
             return
         }
@@ -53,6 +56,8 @@ class CloseView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        //view设置gone后不测量，设置invisible还会测量
+        Log.d("Shelter", "CloseView onMeasure")
         setMeasuredDimension(size, size)
     }
 
@@ -67,6 +72,7 @@ class CloseView @JvmOverloads constructor(
         }
         animator.addUpdateListener {
             curSecond = it.animatedValue as Int
+            Log.d("Shelter", "CloseView startTimer onUpdate width:${measuredWidth}, height:${measuredHeight}")
             invalidate()
         }
         animator.duration = (seconds * 1000).toLong()
