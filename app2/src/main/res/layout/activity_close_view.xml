@@ -10,9 +10,78 @@
         android:id="@+id/close_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/hongbao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/wx_hongbao_unopen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_reward"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="100元"
+        android:textColor="#FFFCAD"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/hongbao"
+        app:layout_constraintLeft_toLeftOf="@+id/hongbao"
+        app:layout_constraintRight_toRightOf="@+id/hongbao"
+        app:layout_constraintTop_toTopOf="@+id/hongbao" />
+
+    <LinearLayout
+        android:id="@+id/ll_pay_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="vertical"
+        android:layoutAnimation="@anim/layout_animation"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="6dp"
+            android:text="打款申请已提交"
+            android:textColor="#1678FF"
+            android:textSize="13sp"
+            app:drawableLeftCompat="@drawable/dialog_icon_blue_tick" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:drawablePadding="6dp"
+            android:text="申请成功微信打款处理中"
+            android:textColor="#1678FF"
+            android:textSize="13sp"
+            app:drawableLeftCompat="@drawable/dialog_icon_blue_tick" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:drawablePadding="6dp"
+            android:text="打款稍后到账注意查收"
+            android:textColor="#999999"
+            android:textSize="13sp"
+            app:drawableLeftCompat="@drawable/dialog_icon_grey_tick" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
