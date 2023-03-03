@@ -10,13 +10,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Review">
         <activity
-            android:name=".StudyKotlinActivity"
+            android:name=".TestChartActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".StudyKotlinActivity"
+            android:exported="true">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
     </application>
 
